@@ -1,23 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import "./ParentComponent";
+import { ParentComponent } from "./ParentComponent";
+import WrapperComponent from "./WrapperComponent";
 
 function App() {
+  const sayHello = () => {};
+  const x = 10;
+  const user = {
+    name: "mariam",
+    lastName: "liparteliani",
+    age: 24,
+    link: "https://www.youtube.com/",
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <ParentComponent />
+      <WrapperComponent />
     </div>
   );
 }
