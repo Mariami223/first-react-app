@@ -17,7 +17,7 @@ const AxiosComponent = () => {
       .get("http://localhost:3001/users")
       .then(({ data }) => console.log("data", data));
   }, []);
-  return <div>AxiosComponent</div>;
+  return <div></div>;
 };
 
 export default AxiosComponent;
