@@ -4,13 +4,11 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import Validation from "./Validation";
-import AxiosComponent from "./Axios";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <div>
     <Validation />
-    <AxiosComponent />
   </div>
 );
 

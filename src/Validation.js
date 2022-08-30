@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+
+import { instance } from "./instance";
 
 const Validation = () => {
   const initialValues = {
-    username: "",
-    lastname: "",
+    firstName: "",
+    lastName: "",
     email: "",
     age: "",
-    gender: "",
+    sex: "",
     password: "",
   };
   const [formValues, setFormValues] = useState(initialValues);
@@ -21,30 +22,36 @@ const Validation = () => {
     setFormValues({ ...formValues, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isUserUpdating) {
-      const userIndex = userList.findIndex((user) => user.id === formValues.id);
-      const newUserList = [...userList];
-      newUserList[userIndex] = formValues;
-      setUserList(newUserList);
+      await instance.put(`/users"${formValues.id}`, formValues);
     } else {
-      setUserList((prevUserList) => {
-        return [...prevUserList, { ...formValues, id: new Date().toString() }];
-      });
+      await instance.post("/users", formValues);
     }
+    const { data } = await instance.get("/users");
+    setUserList(data.data);
+    console.log(data);
 
     setFormValues({
-      username: "",
-      lastname: "",
+      firstName: "",
+      lastName: "",
       email: "",
       age: "",
-      gender: "",
+      sex: "",
+      password: "",
     });
     setUserUpdating(false);
   };
 
-  console.log("userlist", userList);
+  useEffect(() => {
+    const getData = async () => {
+      const { data } = await instance.get("/users");
+      setUserList(data.data);
+    };
+    getData();
+  }, []);
+  //  (ანუ თავიდანვე ჩაიტვირთება სია)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,36 +63,34 @@ const Validation = () => {
     };
   }, [formValues]);
 
-  // console.log(formErrors);
-  // console.log(formValues);
-
   const update = (id) => {
-    const user = userList.find((user) => user.id === id);
+    const user = userList.find((user) => user._id === id);
     setFormValues({
-      username: user.username,
-      lastname: user.lastname,
+      firstName: user.firstName,
+      lastName: user.lastName,
       age: user.age,
       email: user.email,
-      gender: user.gender,
+      sex: user.sex,
       id: id,
+      password: user.password,
     });
   };
 
-  const removeUser = (id) => {
-    setUserList((prev) => {
-      const newFilteredArr = prev.filter((user) => user.id !== id);
-      return newFilteredArr;
-    });
+  const removeUser = async (id) => {
+    await instance.delete(`/users/${id}`);
+    const { data } = await instance.get("/users");
+    setUserList(data.data);
+    console.log("data", data);
   };
 
   const validate = (values) => {
     const errors = {};
 
-    if (values.username && values.username.length < 4) {
-      errors.username = "username should have at least 4 charachters";
+    if (values.firstName && values.firstName.length < 4) {
+      errors.firstName = "firstName should have at least 4 charachters";
     }
-    if (values.lastname && values.lastname.length < 4) {
-      errors.lastname = "lastname should have at least 4 charachters";
+    if (values.lastName && values.lastName.length < 4) {
+      errors.lastName = "lastName should have at least 4 charachters";
     }
     if (values.email && !values.email.includes("@")) {
       errors.email = "email should include @ ";
@@ -106,41 +111,37 @@ const Validation = () => {
         <h1>Login form</h1>
         <div className="ui divider"></div>
         <div className="ui form">
-          <select
-            onChange={handleChange}
-            name="gender"
-            defaultValue={"Chose gender"}
-          >
-            <option name={"gender"} value={"Female"}>
+          <select onChange={handleChange} name="sex" defaultValue={"Chose sex"}>
+            <option name={"sex"} value={"Female"}>
               Female
             </option>
-            <option name={"gender"} value={"Male"}>
+            <option name={"sex"} value={"Male"}>
               Male
             </option>
           </select>
           <div className="field">
-            <label>Username</label>
+            <label>firstName</label>
             <input
               type="text"
-              name="username"
-              placeholder="Username"
-              value={formValues.username}
+              name="firstName"
+              placeholder="firstName"
+              value={formValues.firstName}
               onChange={handleChange}
             />
           </div>
-          {formErrors.username && <p>{formErrors.username}</p>}
+          {formErrors.firstName && <p>{formErrors.firstName}</p>}
 
           <div className="field">
-            <label>Lastname</label>
+            <label>lastName</label>
             <input
               type="text"
-              name="lastname"
-              placeholder="Lastname"
-              value={formValues.lastname}
+              name="lastName"
+              placeholder="lastName"
+              value={formValues.lastName}
               onChange={handleChange}
             />
           </div>
-          {formErrors.lastname && <p>{formErrors.lastname}</p>}
+          {formErrors.lastName && <p>{formErrors.lastName}</p>}
           <div className="field">
             <label>Email</label>
             <input
@@ -177,7 +178,7 @@ const Validation = () => {
           {formErrors.password && <p>{formErrors.password}</p>}
           <button className="fluid ui button blue">Add</button>
           <p>
-            {formValues.username} {formValues.lastname} {formValues.email}{" "}
+            {formValues.firstName} {formValues.lastName} {formValues.email}{" "}
             {formValues.age}
           </p>
         </div>
@@ -185,12 +186,12 @@ const Validation = () => {
 
       {userList.map((user) => {
         return (
-          <React.Fragment key={user.id}>
-            <h1>{user.username}</h1>
+          <React.Fragment key={user._id}>
+            <h1>{user.firstName}</h1>
             <p>{user.age}</p>
             <button
               onClick={() => {
-                update(user.id);
+                update(user._id);
                 setUserUpdating(true);
               }}
             >
@@ -199,7 +200,7 @@ const Validation = () => {
 
             <button
               onClick={() => {
-                removeUser(user.id);
+                removeUser(user._id);
               }}
             >
               Delete
